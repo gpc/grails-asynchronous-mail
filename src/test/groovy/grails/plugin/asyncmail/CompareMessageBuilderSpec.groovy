@@ -13,9 +13,13 @@ class CompareMessageBuilderSpec extends Specification {
         def ammbMethods  = AsynchronousMailMessageBuilder.metaClass.methods
         def mbMethods = MailMessageBuilder.metaClass.methods
 
+        // Remove these methods as they are not part of MailMessageBuilder api and has found to be missing from
+        // AsynchronousMailMessageBuilder with some versions of groovy which will make the test fail
+        mbMethods.removeAll { ['getProperty', 'setProperty', 'invokeMethod'].contains(it.name) }
+
         expect:
-        mbMethods.every {MetaMethod mbm->
-            mbm.isPublic() && ammbMethods.find {it.isPublic() && it.name == mbm.name && it.returnType == mbm.returnType && it.signature == mbm.signature}
+        mbMethods.every { MetaMethod mbm ->
+            mbm.isPublic() && ammbMethods.find {it.isPublic() && it.name == mbm.name && it.returnType == mbm.returnType && it.signature == mbm.signature }
         }
     }
 }

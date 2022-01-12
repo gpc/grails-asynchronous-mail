@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutorService
  * Build new synchronous message
  */
 class AsynchronousMailMessageBuilder {
+
     private AsynchronousMailMessage message
     private boolean immediately = false
     private boolean immediatelySetted = false
@@ -32,31 +33,26 @@ class AsynchronousMailMessageBuilder {
     final String defaultTo
     final String overrideAddress
 
-    AsynchronousMailMessageBuilder(
-            boolean mimeCapable,
-            Config config,
-            FileTypeMap fileTypeMap,
-            MailMessageContentRenderer mailMessageContentRenderer = null
-    ) {
+    AsynchronousMailMessageBuilder(boolean mimeCapable, Config config, FileTypeMap fileTypeMap, MailMessageContentRenderer mailMessageContentRenderer = null) {
         this.mimeCapable = mimeCapable
-        this.overrideAddress = config.overrideAddress ?: null
-        this.defaultFrom = overrideAddress ?: (config.default.from ?: null)
-        this.defaultTo = overrideAddress ?: (config.default.to ?: null)
+        this.overrideAddress = config.getProperty('overrideAddress')
+        this.defaultFrom = overrideAddress ?: config.getProperty('default.from')
+        this.defaultTo = overrideAddress ?: config.getProperty('default.to')
         this.fileTypeMap = fileTypeMap
         this.mailMessageContentRenderer = mailMessageContentRenderer
     }
 
-    void init(config) {
+    void init(Config config) {
         message = new AsynchronousMailMessage()
-        message.attemptInterval = config?.asynchronous?.mail?.default?.attempt?.interval ?: 300000l
-        message.maxAttemptsCount = config?.asynchronous?.mail?.default?.max?.attempts?.count ?: 1
+        message.attemptInterval = config.getProperty('asynchronous.mail.default.attempt.interval', Long, 300000l)
+        message.maxAttemptsCount = config.getProperty('asynchronous.mail.default.max.attempts.count', Integer, 1)
 
-        def marks = getAsynchronousMailDeletingOptionsFromValue(config?.asynchronous?.mail?.clear?.after?.sent)
+        def marks = getAsynchronousMailDeletingOptionsFromValue(config.getProperty('asynchronous.mail.clear.after.sent'))
         message.markDelete = marks[0]
         message.markDeleteAttachments = marks[1]
     }
 
-    private static getAsynchronousMailDeletingOptionsFromValue(value) {
+    private static List<Boolean> getAsynchronousMailDeletingOptionsFromValue(value) {
         switch(value){
             case 'attachments':
                 return [false,true]
@@ -69,28 +65,31 @@ class AsynchronousMailMessageBuilder {
         }
     }
     // Specified fields for asynchronous message
+    @SuppressWarnings('unused')
     void beginDate(Date begin) {
         Assert.notNull(begin, "Begin date can't be null.")
-
         message.beginDate = begin
     }
 
+    @SuppressWarnings('unused')
     void endDate(Date end) {
         Assert.notNull(end, "End date can't be null.")
-
         message.endDate = end
     }
 
     // Priority
+    @SuppressWarnings('unused')
     void priority(int priority) {
         message.priority = priority
     }
 
     // Attempts
+    @SuppressWarnings('unused')
     void maxAttemptsCount(int max) {
         message.maxAttemptsCount = max
     }
 
+    @SuppressWarnings('unused')
     void attemptInterval(long interval) {
         message.attemptInterval = interval
     }
@@ -104,29 +103,32 @@ class AsynchronousMailMessageBuilder {
     // Mark message must be deleted after sent
     void delete(Object value) {
         def marks = getAsynchronousMailDeletingOptionsFromValue(value)
-
         message.markDelete = marks[0]
         message.markDeleteAttachments = marks[1]
     }
 
     // Multipart field do nothing
+    @SuppressWarnings('unused')
     void multipart(boolean multipart) {
         // Nothing
         // Added analogous to mail plugin
     }
 
+    @SuppressWarnings('unused')
     void multipart(int multipartMode) {
         // Nothing
         // Added analogous to mail plugin
     }
 
     // Added for compatibility with the Mail plugin
+    @SuppressWarnings('unused')
     void async(boolean async) {
         // Nothing
         // Added analogous to mail plugin
     }
 
     // Mail message headers
+    @SuppressWarnings('unused')
     void headers(Map headers) {
         Assert.notEmpty(headers, "Headers can't be null.")
 
@@ -157,14 +159,14 @@ class AsynchronousMailMessageBuilder {
 
     void to(Object[] recipients) {
         Assert.notNull(recipients, "Field to can't be null.")
-        to(recipients*.toString())
+        to(recipients.collect { it.toString() })
     }
 
     void to(List<? extends CharSequence> recipients) {
         message.to = validateAndConvertAddrList('to', recipients)
     }
 
-    private List<String> validateAndConvertAddrList(String fieldName, List<? extends CharSequence> recipients) {
+    private static List<String> validateAndConvertAddrList(String fieldName, List<? extends CharSequence> recipients) {
         Assert.notNull(recipients, "Field $fieldName can't be null.")
         Assert.notEmpty(recipients, "Field $fieldName can't be empty.")
 
@@ -186,14 +188,16 @@ class AsynchronousMailMessageBuilder {
     }
 
     // Field "bcc"
+    @SuppressWarnings('unused')
     void bcc(CharSequence val) {
         Assert.notNull(val, "Field bcc can't be null.")
         bcc([val])
     }
 
+    @SuppressWarnings('unused')
     void bcc(Object[] recipients) {
         Assert.notNull(recipients, "Field bcc can't be null.")
-        bcc(recipients*.toString())
+        bcc(recipients.collect { it.toString() })
     }
 
     void bcc(List<? extends CharSequence> recipients) {
@@ -201,14 +205,16 @@ class AsynchronousMailMessageBuilder {
     }
 
     // Field "cc"
+    @SuppressWarnings('unused')
     void cc(CharSequence val) {
         Assert.notNull(val, "Field cc can't be null.")
         cc([val])
     }
 
+    @SuppressWarnings('unused')
     void cc(Object[] recipients) {
         Assert.notNull(recipients, "Field cc can't be null.")
-        cc(recipients*.toString())
+        cc(recipients.collect { it.toString() })
     }
 
     void cc(List<? extends CharSequence> recipients) {
@@ -216,6 +222,7 @@ class AsynchronousMailMessageBuilder {
     }
 
     // Field "replyTo"
+    @SuppressWarnings('unused')
     void replyTo(CharSequence val) {
         def addr = val?.toString()
         assertEmail(addr, 'replyTo')
@@ -230,6 +237,7 @@ class AsynchronousMailMessageBuilder {
     }
 
     // Field "envelope from"
+    @SuppressWarnings('unused')
     void envelopeFrom(CharSequence envFrom) {
         def addr = envFrom?.toString()
         assertEmail(addr, 'envelopeFrom')
@@ -297,29 +305,24 @@ class AsynchronousMailMessageBuilder {
 
     protected MailMessageContentRender doRender(Map params) {
         if (mailMessageContentRenderer == null) {
-            throw new GrailsMailException(
-                    "Mail message builder was constructed without a message content renderer so views can't be rendered"
-            )
+            throw new GrailsMailException("Mail message builder was constructed without a message content renderer so views can't be rendered")
         }
 
         if (!params.view) {
             throw new GrailsMailException("No view specified.")
         }
 
-        return mailMessageContentRenderer.render(
-                new StringWriter(), params.view, params.model, locale, params.plugin
-        )
+        return mailMessageContentRenderer.render(new StringWriter(), params.view as String, params.model as Map, locale, params.plugin as String)
     }
 
+    @SuppressWarnings('unused')
     void locale(String localeStr) {
         Assert.hasText(localeStr, "Locale can't be null or empty.")
-
         locale(new Locale(localeStr.split('_', 3).toArrayString()))
     }
 
     void locale(Locale locale) {
         Assert.notNull(locale, "Locale can't be null.")
-
         this.locale = locale
     }
 
@@ -339,10 +342,12 @@ class AsynchronousMailMessageBuilder {
         )
     }
 
+    @SuppressWarnings('unused')
     void attach(String fileName, String contentType, byte[] bytes) {
         attachBytes(fileName, contentType, bytes)
     }
 
+    @SuppressWarnings('unused')
     void attach(File file) {
         attach(file.name, file)
     }
@@ -383,6 +388,7 @@ class AsynchronousMailMessageBuilder {
         )
     }
 
+    @SuppressWarnings('unused')
     void inline(File file) {
         inline(file.name, file)
     }
@@ -408,33 +414,22 @@ class AsynchronousMailMessageBuilder {
         }
     }
 
+    @SuppressWarnings(['unused', 'GrMethodMayBeStatic'])
     MailMessage finishMessage() {
-        throw new UnsupportedOperationException(
-                "You are using the Grails Asynchronous Mail plug-in which doesn't support some methods."
-        );
+        throw new UnsupportedOperationException("You are using the Grails Asynchronous Mail plug-in which doesn't support some methods.")
     }
 
+    @SuppressWarnings(['unused', 'GrMethodMayBeStatic'])
     MailMessage sendMessage(ExecutorService executorService) {
-        throw new UnsupportedOperationException(
-                "You are using the Grails Asynchronous Mail plug-in which doesn't support some methods."
-        );
+        throw new UnsupportedOperationException("You are using the Grails Asynchronous Mail plug-in which doesn't support some methods.")
     }
 
+    @SuppressWarnings(['unused', 'GrMethodMayBeStatic'])
     MailSender getMailSender(){
-        throw new UnsupportedOperationException(
-                "You are using the Grails Asynchronous Mail plug-in which doesn't support some methods."
-        );
+        throw new UnsupportedOperationException("You are using the Grails Asynchronous Mail plug-in which doesn't support some methods.")
     }
 
-    AsynchronousMailMessage getMessage() {
-        return message
-    }
-
-    boolean getImmediately() {
-        return immediately
-    }
-
-    boolean getImmediatelySetted() {
-        return immediatelySetted
-    }
+    AsynchronousMailMessage getMessage() { message }
+    boolean getImmediately() { immediately }
+    boolean getImmediatelySetted() { immediatelySetted }
 }

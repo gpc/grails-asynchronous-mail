@@ -1,60 +1,56 @@
 package grails.plugin.asyncmail
 
-import grails.config.Config
-import grails.core.support.GrailsConfigurationAware
+import org.springframework.beans.factory.annotation.Value
 
-class AsynchronousMailConfigService implements GrailsConfigurationAware {
-    Config configuration
+class AsynchronousMailConfigService {
 
-    long getDefaultAttemptInterval() {
-        return configuration.asynchronous.mail.default.attempt.interval
-    }
+    @Value('${asynchronous.mail.default.attempt.interval}')
+    private long defaultAttemptInterval
+    long getDefaultAttemptInterval() { defaultAttemptInterval }
 
-    int getDefaultMaxAttemptCount() {
-        return configuration.asynchronous.mail.default.max.attempts.count
-    }
+    @Value('${asynchronous.mail.default.max.attempts.count}')
+    private int defaultMaxAttemptCount
+    int getDefaultMaxAttemptCount() { defaultMaxAttemptCount }
 
-    long getSendRepeatInterval() {
-        return configuration.asynchronous.mail.send.repeat.interval
-    }
+    @Value('${asynchronous.mail.send.repeat.interval}')
+    private long sendRepeatInterval
+    long getSendRepeatInterval() { sendRepeatInterval }
 
-    long getExpiredCollectorRepeatInterval() {
-        return configuration.asynchronous.mail.expired.collector.repeat.interval
-    }
+    @Value('${asynchronous.mail.expired.collector.repeat.interval}')
+    private long expiredCollectorRepeatInterval
+    long getExpiredCollectorRepeatInterval() { expiredCollectorRepeatInterval }
 
-    int getMessagesAtOnce() {
-        return configuration.asynchronous.mail.messages.at.once
-    }
+    @Value('${asynchronous.mail.messages.at.once}')
+    private int messagesAtOnce
+    int getMessagesAtOnce() { messagesAtOnce }
 
-    boolean isSendImmediately() {
-        return configuration.asynchronous.mail.send.immediately
-    }
+    @Value('${asynchronous.mail.send.immediately}')
+    private boolean sendImmediately
+    boolean isSendImmediately() { sendImmediately }
 
-    boolean isClearAfterSent() {
-        return configuration.asynchronous.mail.clear.after.sent
-    }
+    @Value('${asynchronous.mail.clear.after.sent}')
+    private boolean clearAfterSent
+    boolean isClearAfterSent() { clearAfterSent }
 
-    boolean isDisable() {
-        return configuration.asynchronous.mail.disable
-    }
+    @Value('${asynchronous.mail.disable}')
+    private boolean disable
+    boolean isDisable() { disable }
 
-    boolean isUseFlushOnSave() {
-        return configuration.asynchronous.mail.useFlushOnSave
-    }
+    @Value('${asynchronous.mail.useFlushOnSave}')
+    private boolean useFlushOnSave
+    boolean isUseFlushOnSave() { useFlushOnSave }
 
-    String getPersistenceProvider() {
-        return configuration.asynchronous.mail.persistence.provider
-    }
+    @Value('${asynchronous.mail.persistence.provider}')
+    private String persistenceProvider
+    String getPersistenceProvider() { persistenceProvider }
 
-    boolean getNewSessionOnImmediateSend() {
-        return configuration.asynchronous.mail.newSessionOnImmediateSend
-    }
+    @Value('${asynchronous.mail.newSessionOnImmediateSend}')
+    private boolean newSessionOnImmediateSend
+    boolean getNewSessionOnImmediateSend() { newSessionOnImmediateSend }
 
-    int getTaskPoolSize() {
-        return configuration.asynchronous.mail.taskPoolSize
-    }
+    @Value('${asynchronous.mail.taskPoolSize}')
+    private int taskPoolSize
+    int getTaskPoolSize() { taskPoolSize }
 
-    boolean isMongo(){
-        getPersistenceProvider() == 'mongodb'
-    }
+    boolean isMongo() { getPersistenceProvider() == 'mongodb' }
 }
