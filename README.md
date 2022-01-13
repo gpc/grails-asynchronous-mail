@@ -1,7 +1,7 @@
 The Grails Asynchronous Mail plugin
 ====================================
 
-[![Build Status](https://travis-ci.org/kefirfromperm/grails-asynchronous-mail.svg?branch=master)](https://travis-ci.org/kefirfromperm/grails-asynchronous-mail) [![Download](https://api.bintray.com/packages/kefirsf/plugins/asynchronous-mail/images/download.svg) ](https://bintray.com/kefirsf/plugins/asynchronous-mail/_latestVersion) [![OpenHUB](https://openhub.net/p/grails-asynchronous-mail/widgets/project_thin_badge?format=gif)](https://openhub.net/p/grails-asynchronous-mail)
+[![Build Status](https://travis-ci.org/kefirfromperm/grails-asynchronous-mail.svg?branch=master)](https://travis-ci.org/kefirfromperm/grails-asynchronous-mail) [![OpenHUB](https://openhub.net/p/grails-asynchronous-mail/widgets/project_thin_badge?format=gif)](https://openhub.net/p/grails-asynchronous-mail)
 
 Description
 -----------
@@ -11,7 +11,7 @@ database with Grails domain classes and sends them by a scheduled Quartz job. Ma
 the `sendAsynchronousMail` (or `sendMail`) method returning instantly, is not waiting for the mail to be actually sent. If
 the SMTP server isn't available, or other errors occur, the plugin can be set to retry later.
 
-The plugin depends on the [quartz](https://grails.org/plugins.html#plugin/quartz) and the [mail](https://grails.org/plugins.html#plugin/mail) plugins. You also need a persistence provider plugin, [hibernate5](https://plugins.grails.org/plugin/grails/hibernate5) and [mongodb](https://plugins.grails.org/plugin/grails/mongodb) are supported.
+The plugin depends on the [quartz](https://grails.org/plugins.html#plugin/quartz) and the [mail](https://grails.org/plugins.html#plugin/mail) plugins. You also need a persistence provider plugin, [hibernate5](https://plugins.grails.org/plugin/grails/hibernate5) (or the appropriate version of hibernate for previous grails versions) and [mongodb](https://plugins.grails.org/plugin/grails/mongodb) are supported.
 
 Links
 -----
@@ -25,7 +25,14 @@ Links
 Installation
 ------------
 
-To install just add the plugin to the plugins block of `build.gradle`. For Grails 4.0.x
+To install just add the plugin to the plugins block of `build.gradle`:
+
+For Grails 5.x.x
+```groovy
+implementation "org.grails.plugins:asynchronous-mail:3.1.0"
+```
+
+For grails 4.0.x
 ```groovy
 compile "org.grails.plugins:asynchronous-mail:3.0.0"
 ```
@@ -60,7 +67,7 @@ asynchronous.mail.newSessionOnImmediateSend=false
 asynchronous.mail.taskPoolSize=1
 ```
 
-If you want to change this options just add options which you want to change to your configuration file `/grails-app/conf/application.groovy`.
+If you want to change this options just add options which you want to change to your configuration file `/grails-app/conf/application.groovy` or `/grails-app/conf/application.yml`.
 
 |Option|Default|Description|
 |------|-------|-----------|
