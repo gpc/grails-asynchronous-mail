@@ -2,6 +2,7 @@ package grails.plugin.asyncmail
 
 import grails.config.Config
 import grails.core.support.GrailsConfigurationAware
+import grails.plugins.mail.MailMessageContentRenderer
 import org.springframework.mail.javamail.JavaMailSender
 
 import javax.activation.FileTypeMap
@@ -13,9 +14,11 @@ import javax.activation.MimetypesFileTypeMap
  * @coauthor Puneet Behl
  */
 class AsynchronousMailMessageBuilderFactory implements GrailsConfigurationAware {
-    def mailMessageContentRenderer
+
+    MailMessageContentRenderer mailMessageContentRenderer
     def mailSender
     Config configuration
+
     private final FileTypeMap fileTypeMap = new MimetypesFileTypeMap()
 
     AsynchronousMailMessageBuilder createBuilder() {
