@@ -1,7 +1,7 @@
 The Grails Asynchronous Mail plugin
 ====================================
 
-[![Build Status](https://travis-ci.org/kefirfromperm/grails-asynchronous-mail.svg?branch=master)](https://travis-ci.org/kefirfromperm/grails-asynchronous-mail) [![OpenHUB](https://openhub.net/p/grails-asynchronous-mail/widgets/project_thin_badge?format=gif)](https://openhub.net/p/grails-asynchronous-mail)
+[![Build](https://github.com/gpc/grails-asynchronous-mail/actions/workflows/build.yml/badge.svg)](https://github.com/gpc/grails-asynchronous-mail/actions/workflows/build.yml)
 
 Description
 -----------
@@ -11,16 +11,14 @@ database with Grails domain classes and sends them by a scheduled Quartz job. Ma
 the `sendAsynchronousMail` (or `sendMail`) method returning instantly, is not waiting for the mail to be actually sent. If
 the SMTP server isn't available, or other errors occur, the plugin can be set to retry later.
 
-The plugin depends on the [quartz](https://grails.org/plugins.html#plugin/quartz) and the [mail](https://grails.org/plugins.html#plugin/mail) plugins. You also need a persistence provider plugin, [hibernate5](https://plugins.grails.org/plugin/grails/hibernate5) (or the appropriate version of hibernate for previous grails versions) and [mongodb](https://plugins.grails.org/plugin/grails/mongodb) are supported.
+The plugin depends on the [quartz](https://plugins.grails.org/plugin/grails/quartz) and the [mail](https://plugins.grails.org/plugin/grails/mail) plugins. You also need a persistence provider plugin, [hibernate5](https://plugins.grails.org/plugin/grails/hibernate5) (or the appropriate version of hibernate for previous grails versions) and [mongodb](https://plugins.grails.org/plugin/grails/mongodb) are supported.
 
 Links
 -----
 
-* The plugin page: <https://plugins.grails.org/plugin/kefirsf/asynchronous-mail>
-* The VCS repository (GitHub): <https://github.com/kefirfromperm/grails-asynchronous-mail>
-* The issue tracker (GitHub): <https://github.com/kefirfromperm/grails-asynchronous-mail/issues>
-* The repository package (BinTray): <https://bintray.com/kefirsf/plugins/asynchronous-mail/>
-* The page at OpenHUB: <https://www.openhub.net/p/grails-asynchronous-mail>
+* The plugin page: <https://plugins.grails.org/plugin/grails/asynchronous-mail>
+* The VCS repository (GitHub): <https://github.com/gpc/grails-asynchronous-mail>
+* The issue tracker (GitHub): <https://github.com/gpc/grails-asynchronous-mail/issues>
 
 Installation
 ------------
@@ -115,22 +113,22 @@ Next, change your sendMail call.
 asyncMailService.sendMail {
     // Mail parameters
     to 'john.smith@example.com'
-    subject 'Test';
-    html '<body><u>Test</u></body>';
-    attachBytes 'test.txt', 'text/plain', byteBuffer;
+    subject 'Test'
+    html '<body><u>Test</u></body>'
+    attachBytes 'test.txt', 'text/plain', byteBuffer
 
     // Additional asynchronous parameters (optional)
     beginDate new Date(System.currentTimeMillis()+60000)    // Starts after one minute, default current date
     endDate new Date(System.currentTimeMillis()+3600000)   // Must be sent in one hour, default infinity
-    maxAttemptsCount 3;   // Max 3 attempts to send, default 1
-    attemptInterval 300000;    // Minimum five minutes between attempts, default 300000 ms
-    delete true;    // Marks the message for deleting after sent
-    immediate true;    // Run the send job after the message was created
-    priority 10;   // If priority is greater then message will be sent faster
+    maxAttemptsCount 3   // Max 3 attempts to send, default 1
+    attemptInterval 300000    // Minimum five minutes between attempts, default 300000 ms
+    delete true    // Marks the message for deleting after sent
+    immediate true    // Run the send job after the message was created
+    priority 10   // If priority is greater then message will be sent faster
 }
 ```
 
-Also see the sample application at <https://github.com/kefirfromperm/grails-asynchronous-mail-sample>.
+Also see the sample application at <https://github.com/kefirfromperm/grails-asynchronous-mail-sample> (Grails 3).
 
 The AsynchronousMailController and views
 ----------------------------------------
@@ -146,7 +144,7 @@ Logging
 
 To enable full logging for the plugin just add the following lines to `/grails-app/conf/logback.groovy`.
 ```groovy
-...
+//...
 // Enable Asynchronous Mail plugin logging
 logger('grails.app.jobs.grails.plugin.asyncmail', TRACE, ['STDOUT'])
 logger('grails.app.services.grails.plugin.asyncmail', TRACE, ['STDOUT'])
@@ -154,37 +152,23 @@ logger('grails.plugin.asyncmail', TRACE, ['STDOUT'])
 
 // Enable Quartz plugin logging
 logger('grails.plugins.quartz', DEBUG, ['STDOUT'])
-...
+//...
 ```
 
 Indexes
 -------
 
-I recommend to create an index on the `async_mail_mess.status` column. It's result of my heuristic observations. Only DBA have to create indexes anyway.
+A recommendation is to create an index on the `async_mail_mess.status` column. It's result of my heuristic observations. Only DBA have to create indexes anyway.
 
 Issue tracking
 --------------
 
-You can report bugs on [GitHub](https://github.com/kefirfromperm/grails-asynchronous-mail/issues?state=open).
-You also can ask me questions by email [kefirfromperm@gmail.com](mailto:kefirfromperm@gmail.com).
+You can report bugs on [GitHub](https://github.com/gpc/grails-asynchronous-mail/issues?state=open).
+You also can ask questions in the [Grails Community Slack Channels](https://slack.grails.org/).
 Please enable logs and attach them to your issue.
-
-Please review this project at [OpenHUB](https://www.openhub.net/p/grails-asynchronous-mail).
 
 Contribution
 ------------
 
 If you want to contribute to the plugin just open a pull request to the repository
-<https://github.com/kefirfromperm/grails-asynchronous-mail>.
-
-Unit tests are very very sweet things. They help us to find bugs and to modify code without adding new bugs. It's very
-interesting to see how they work. I like to see how they work. What is better than unit tests? More unit tests!
-Unit tests are good!
-
-And comments... Comments are good also. They are not as good as unit tests but they are definitely good. If you known
-Chinese or Arabic it's good. Seriously. It's awesome! But I don't speak them. So write comments in English.
-
-Donation
---------
-
-If you want to give me a beer just send some money to <https://www.paypal.me/kefir>
+<https://github.com/gpc/grails-asynchronous-mail>.
