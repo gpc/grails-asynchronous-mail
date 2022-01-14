@@ -1,16 +1,17 @@
 buildscript {
     repositories {
         maven { url "https://repo.grails.org/grails/core" }
+        maven { url "https://plugins.gradle.org/m2" }
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.4"
         classpath "org.grails.plugins:hibernate5:7.2.0"
+        classpath "io.github.gradle-nexus:publish-plugin:1.0.0"
     }
 }
 
-version "3.1.0"
-group "org.grails.plugins"
+group "io.github.gpc"
 
 apply plugin: "eclipse"
 apply plugin: "idea"
@@ -18,7 +19,8 @@ apply plugin: "org.grails.grails-plugin"
 apply plugin: "asset-pipeline"
 apply plugin: "org.grails.grails-gsp"
 apply plugin: "maven-publish"
-//apply plugin: "signing"
+apply plugin: "signing"
+apply plugin: "io.github.gradle-nexus.publish-plugin"
 
 repositories {
     maven { url "https://repo.grails.org/grails/core" }
@@ -121,7 +123,7 @@ publishing {
             pom {
                 name = 'Grails Asynchronous Mail Plugin'
                 description = 'The plugin realises asynchronous mail sending. It stores messages in a DB and sends them asynchronously by a quartz job.'
-                url = 'https://github.com/matrei/grails-asynchronous-mail'
+                url = 'https://github.com/gpc/grails-asynchronous-mail'
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
@@ -187,10 +189,53 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:git://github.com/matrei/grails-asynchronous-mail.git'
-                    developerConnection = 'scm:git:ssh://github.com:matrei/grails-asynchronous-mail.git'
-                    url = 'https://github.com/matrei/grails-asynchronous-mail'
+                    connection = 'scm:git:git://github.com/gpc/grails-asynchronous-mail.git'
+                    developerConnection = 'scm:git:ssh://github.com:gpc/grails-asynchronous-mail.git'
+                    url = 'https://github.com/gpc/grails-asynchronous-mail'
                 }
+            }
+        }
+    }
+}
+
+ext."signing.keyId" = project.findProperty('signing.keyId') ?: System.getenv('SIGNING_KEY_ID')
+ext."signing.password" = project.findProperty('signing.password') ?: System.getenv('SIGNING_PASSPHRASE')
+ext."signing.secretKeyRingFile" = project.findProperty('signing.secretKeyRingFile') ?: (System.getenv('SIGNING_PASSPHRASE') ?: "${System.getProperty('user.home')}/.gnupg/secring.gpg")
+
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+afterEvaluate {
+    signing {
+        required { isReleaseVersion }
+        sign publishing.publications.maven
+    }
+}
+
+tasks.withType(Sign) {
+    onlyIf { isReleaseVersion }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            def ossUser = System.getenv("SONATYPE_USERNAME") ?: project.findProperty('sonatypeOss2Username') ?: ''
+            def ossPass = System.getenv("SONATYPE_PASSWORD") ?: project.findProperty("sonatypeOss2Password") ?: ''
+            def ossStagingProfileId = System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: project.findProperty("sonatypeOssStagingProfileIdJms") ?: ''
+
+            nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
+            snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            username = ossUser
+            password = ossPass
+            stagingProfileId = ossStagingProfileId
+        }
+    }
+}
+
+task snapshotVersion {
+    doLast {
+        if(!project.version.endsWith('-SNAPSHOT')) {
+            ant.propertyfile(file: "gradle.properties") {
+                entry(key: "version", value: "${project.version}-SNAPSHOT")
             }
         }
     }
