@@ -1,23 +1,26 @@
 buildscript {
     repositories {
         maven { url "https://repo.grails.org/grails/core" }
+        maven { url "https://plugins.gradle.org/m2" }
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.0.10"
         classpath "org.grails.plugins:hibernate5:7.0.4"
+        classpath "io.github.gradle-nexus:publish-plugin:1.0.0"
     }
 }
 
-version "3.0.0"
-group "org.grails.plugins"
+group "io.github.gpc"
 
 apply plugin:"eclipse"
 apply plugin: 'idea'
 apply plugin:"org.grails.grails-plugin"
-apply plugin:"org.grails.grails-plugin-publish"
 apply plugin:"asset-pipeline"
 apply plugin:"org.grails.grails-gsp"
+apply plugin: "maven-publish"
+apply plugin: "signing"
+apply plugin: "io.github.gradle-nexus.publish-plugin"
 
 repositories {
     maven { url "https://repo.grails.org/grails/core" }
@@ -89,34 +92,139 @@ tasks.withType(GroovyCompile) {
 }
 // enable if you wish to package this plugin as a standalone application
 bootJar.enabled = false
-grailsPublish {
-    userOrg = 'kefirsf'
-    license {
-        name = 'Apache-2.0'
-    }
-    websiteUrl = 'https://grails.org/plugins.html#plugin/asynchronous-mail'
-    issueTrackerUrl = 'https://github.com/kefirfromperm/grails-asynchronous-mail/issues'
-    vcsUrl = 'https://github.com/kefirfromperm/grails-asynchronous-mail.git'
-    title = "Grails Asynchronous Mail plugin"
-    desc = "The plugin realises asynchronous mail sending. It stores messages in a DB and sends them asynchronously by a quartz job."
-    developers = [
-            kefirfromperm:"Vitalii Samolovskikh",
-            stokito:"Sergey Ponomarev",
-            ilopmar:"Iván López",
-            burtbeckwith:"Burt Beckwith",
-            puneetbehl:"Puneet Behl",
-            aberbenni:"Alessandro Berbenni",
-            dpcasady:"Danny Casady",
-            SAgrawal14:"Shashank Agrawal",
-            visheshd:"Vishesh",
-            'micke-a':"Mikael Andersson",
-            pgdoval:"Pablo González Doval",
-            Uniqen:"Magnus Dalin",
-            demon101:"Demon",
-            matrei:"Mattias Reichel"
-    ]
-}
 
 assets {
     packagePlugin = true
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = project.group
+            artifactId = 'asynchronous-mail'
+            version = project.version
+
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+                name = 'Grails Asynchronous Mail Plugin'
+                description = 'The plugin realises asynchronous mail sending. It stores messages in a DB and sends them asynchronously by a quartz job.'
+                url = 'https://github.com/gpc/grails-asynchronous-mail'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'kefirfromperm'
+                        name = 'Vitalii Samolovskikh'
+                    }
+                    developer {
+                        id = 'stokito'
+                        name = 'Sergey Ponomarev'
+                    }
+                    developer {
+                        id = 'ilopmar'
+                        name = 'Iván López'
+                    }
+                    developer {
+                        id = 'burtbeckwith'
+                        name = 'Burt Beckwith'
+                    }
+                    developer {
+                        id = 'puneetbehl'
+                        name = 'Puneet Behl'
+                    }
+                    developer {
+                        id = 'aberbenni'
+                        name = 'Alessandro Berbenni'
+                    }
+                    developer {
+                        id = 'dpcasady'
+                        name = 'Danny Casady'
+                    }
+                    developer {
+                        id = 'SAgrawal14'
+                        name = 'Shashank Agrawal'
+                    }
+                    developer {
+                        id = 'visheshd'
+                        name = 'Vishesh'
+                    }
+                    developer {
+                        id = 'micke-a'
+                        name = 'Mikael Andersson'
+                    }
+                    developer {
+                        id = 'pgdoval'
+                        name = 'Pablo González Doval'
+                    }
+                    developer {
+                        id = 'Uniqen'
+                        name = 'Magnus Dalin'
+                    }
+                    developer {
+                        id = 'demon101'
+                        name = 'Demon'
+                    }
+                    developer {
+                        id = 'matrei'
+                        name = 'Mattias Reichel'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/gpc/grails-asynchronous-mail.git'
+                    developerConnection = 'scm:git:ssh://github.com:gpc/grails-asynchronous-mail.git'
+                    url = 'https://github.com/gpc/grails-asynchronous-mail'
+                }
+            }
+        }
+    }
+}
+
+ext."signing.keyId" = project.findProperty('signing.keyId') ?: System.getenv('SIGNING_KEY_ID')
+ext."signing.password" = project.findProperty('signing.password') ?: System.getenv('SIGNING_PASSPHRASE')
+ext."signing.secretKeyRingFile" = project.findProperty('signing.secretKeyRingFile') ?: (System.getenv('SIGNING_PASSPHRASE') ?: "${System.getProperty('user.home')}/.gnupg/secring.gpg")
+
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+afterEvaluate {
+    signing {
+        required { isReleaseVersion }
+        sign publishing.publications.maven
+    }
+}
+
+tasks.withType(Sign) {
+    onlyIf { isReleaseVersion }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            def ossUser = System.getenv("SONATYPE_USERNAME") ?: project.findProperty('sonatypeOss2Username') ?: ''
+            def ossPass = System.getenv("SONATYPE_PASSWORD") ?: project.findProperty("sonatypeOss2Password") ?: ''
+            def ossStagingProfileId = System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: project.findProperty("sonatypeOssStagingProfileIdJms") ?: ''
+
+            nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
+            snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            username = ossUser
+            password = ossPass
+            stagingProfileId = ossStagingProfileId
+        }
+    }
+}
+
+task snapshotVersion {
+    doLast {
+        if(!project.version.endsWith('-SNAPSHOT')) {
+            ant.propertyfile(file: "gradle.properties") {
+                entry(key: "version", value: "${project.version}-SNAPSHOT")
+            }
+        }
+    }
 }
