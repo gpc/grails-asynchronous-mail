@@ -27,7 +27,7 @@ To install just add the plugin to the plugins block of `build.gradle`:
 
 For Grails 5.x.x
 ```groovy
-implementation "io.github.gpc:asynchronous-mail:3.1.1"
+implementation "io.github.gpc:asynchronous-mail:3.1.2"
 ```
 
 For grails 4.0.x
