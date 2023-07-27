@@ -1,5 +1,6 @@
 package grails.plugin.asyncmail
 
+import grails.async.Promise
 import grails.async.Promises
 import grails.gorm.transactions.Transactional
 import grails.plugin.asyncmail.enums.MessageStatus
@@ -34,7 +35,7 @@ class AsynchronousMailProcessService {
             Queue<Long> idsQueue = new ArrayBlockingQueue<Long>(messageCount, false, messagesIds)
 
             // Create some parallel tasks
-            def promises = []
+            def promises = [] as List<Promise>
             int taskCount = Math.min(asynchronousMailConfigService.taskPoolSize, messageCount)
 
             log.debug("Starts $taskCount send tasks.")

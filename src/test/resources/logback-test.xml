@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+    <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wex</pattern>
+        </encoder>
+    </appender>
+
+    <root level="ERROR"><appender-ref ref="STDOUT"/></root>
+
+    <!-- Enable Asynchronous Mail plugin logging -->
+    <logger name="grails.app.jobs.grails.plugin.asyncmail" level="TRACE" additivity="false"><appender-ref ref="STDOUT"/></logger>
+    <logger name="grails.app.services.grails.plugin.asyncmail" level="TRACE" additivity="false"><appender-ref ref="STDOUT"/></logger>
+    <logger name="grails.plugin.asyncmail" level="TRACE" additivity="false"><appender-ref ref="STDOUT"/></logger>
+
+    <!-- Enable Quartz plugin logging -->
+    <logger name="grails.plugins.quartz" level="DEBUG" additivity="false"><appender-ref ref="STDOUT"/></logger>
+</configuration>
