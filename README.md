@@ -28,7 +28,7 @@ Installation
 To install just add the plugin to the plugins block of `build.gradle`. For Grails 3.3.x
 
 ```groovy
-compile "org.grails.plugins:asynchronous-mail:2.0.2"
+compile "org.grails.plugins:asynchronous-mail:2.0.3"
 ```
 
 For Grails 3.2.11 and earlier
