@@ -13,6 +13,8 @@ buildscript {
 version "2.0.3"
 group "org.grails.plugins"
 
+sourceCompatibility = 1.8
+
 apply plugin: 'idea'
 apply plugin:"org.grails.grails-plugin"
 apply plugin:"org.grails.grails-plugin-publish"
