@@ -6,17 +6,22 @@ buildscript {
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.14.2"
+        classpath "com.gorylenko.gradle-git-properties:com.gorylenko.gradle-git-properties.gradle.plugin:1.5.2"
     }
 }
 
-version "2.0.2"
+version "2.0.3"
 group "org.grails.plugins"
+
+sourceCompatibility = 1.8
 
 apply plugin: 'idea'
 apply plugin:"org.grails.grails-plugin"
 apply plugin:"org.grails.grails-plugin-publish"
 apply plugin:"org.grails.grails-gsp"
 apply plugin:"asset-pipeline"
+apply plugin: "com.gorylenko.gradle-git-properties"
+apply plugin: 'maven-publish'
 
 ext {
     grailsVersion = project.grailsVersion
@@ -60,6 +65,44 @@ task wrapper(type: Wrapper) {
     gradleVersion = gradleWrapperVersion
 }
 
+task sourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task packageJavadoc(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
+}
+
+task packageGroovydoc(type: Jar) {
+    from groovydoc
+    classifier = 'groovydoc'
+}
+
+
+gitProperties {
+    keys = ['git.branch', 'git.commit.id', 'git.commit.time', 'git.commit.id.abbrev']
+    failOnNoGitDirectory = true
+    extProperty = 'gitProps' // git properties will be put in a map at project.ext.gitProps
+}
+
+generateGitProperties.outputs.upToDateWhen { false } // make sure the generateGitProperties task always executes (even when git.properties is not changed)
+
+jar {
+    dependsOn generateGitProperties
+    manifest {
+        attributes("Built-By": System.getProperty("user.name"))
+        attributes(["Plugin-Version"        : version,
+                    "Plugin-Title"          : project.name,
+                    "Plugin-Build-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                    "Git-Commit"            : "${-> project.ext.gitProps['git.commit.id.abbrev']}",
+                    "Git-Branch"            : "${-> project.ext.gitProps['git.branch']}"])
+    }
+    from sourceSets.main.output
+    exclude 'git.properties'
+}
+
 grailsPublish {
     userOrg = 'kefirsf'
     license {
@@ -71,18 +114,54 @@ grailsPublish {
     title = "Grails Asynchronous Mail plugin"
     desc = "The plugin realises asynchronous mail sending. It stores messages in a DB and sends them asynchronously by a quartz job."
     developers = [
-            kefirfromperm:"Vitalii Samolovskikh",
-            stokito:"Sergey Ponomarev",
-            ilopmar:"Iván López",
-            burtbeckwith:"Burt Beckwith",
-            puneetbehl:"Puneet Behl",
-            aberbenni:"Alessandro Berbenni",
-            dpcasady:"Danny Casady",
-            SAgrawal14:"Shashank Agrawal",
-            visheshd:"Vishesh",
-            'micke-a':"Mikael Andersson",
-            pgdoval:"Pablo González Doval",
-            Uniqen:"Magnus Dalin",
-            demon101:"Demon"
+            kefirfromperm: "Vitalii Samolovskikh",
+            stokito      : "Sergey Ponomarev",
+            ilopmar      : "Iván López",
+            burtbeckwith : "Burt Beckwith",
+            puneetbehl   : "Puneet Behl",
+            aberbenni    : "Alessandro Berbenni",
+            dpcasady     : "Danny Casady",
+            SAgrawal14   : "Shashank Agrawal",
+            visheshd     : "Vishesh",
+            'micke-a'    : "Mikael Andersson",
+            pgdoval      : "Pablo González Doval",
+            Uniqen       : "Magnus Dalin",
+            demon101     : "Demon",
+            vsachinv     : "Sachin Verma"
     ]
+}
+
+
+javadoc {
+    source = sourceSets.main.allJava
+    classpath = configurations.compileClasspath
+    options
+            {
+                setMemberLevel JavadocMemberLevel.PUBLIC
+                setAuthor true
+
+                links "https://docs.oracle.com/javase/8/docs/api/"
+            }
+}
+
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/gpc/grails-asynchronous-mail"
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from components.java
+            artifact sourceJar
+            artifact packageJavadoc
+            artifact packageGroovydoc
+        }
+    }
 }

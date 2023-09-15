@@ -25,10 +25,18 @@ Links
 Installation
 ------------
 
-To install just add the plugin to the plugins block of `build.gradle`. For Grails 3.3.x
+To install just add the plugin to the plugins block of `build.gradle`. 
+
+For Grails 3.3.x (Via jitpack proxy on github registry packages as for grails 3.3.x support on nexus publish not working)
 
 ```groovy
-compile "org.grails.plugins:asynchronous-mail:2.0.2"
+        repositories {
+                    maven { url 'https://jitpack.io' }
+                }
+```
+
+```groovy
+        compile "com.github.gpc:asynchronous-mail:2.0.3"    // or compile "org.grails.plugins:asynchronous-mail:2.0.2"
 ```
 
 For Grails 3.2.11 and earlier
