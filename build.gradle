@@ -19,6 +19,7 @@ apply plugin:"org.grails.grails-plugin-publish"
 apply plugin:"org.grails.grails-gsp"
 apply plugin:"asset-pipeline"
 apply plugin: "com.gorylenko.gradle-git-properties"
+apply plugin: 'maven-publish'
 
 ext {
     grailsVersion = project.grailsVersion
@@ -67,6 +68,16 @@ task sourceJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
+task packageJavadoc(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
+}
+
+task packageGroovydoc(type: Jar) {
+    from groovydoc
+    classifier = 'groovydoc'
+}
+
 
 gitProperties {
     keys = ['git.branch', 'git.commit.id', 'git.commit.time', 'git.commit.id.abbrev']
@@ -90,7 +101,6 @@ jar {
     exclude 'git.properties'
 }
 
-
 grailsPublish {
     userOrg = 'kefirsf'
     license {
@@ -102,18 +112,54 @@ grailsPublish {
     title = "Grails Asynchronous Mail plugin"
     desc = "The plugin realises asynchronous mail sending. It stores messages in a DB and sends them asynchronously by a quartz job."
     developers = [
-            kefirfromperm:"Vitalii Samolovskikh",
-            stokito:"Sergey Ponomarev",
-            ilopmar:"Iván López",
-            burtbeckwith:"Burt Beckwith",
-            puneetbehl:"Puneet Behl",
-            aberbenni:"Alessandro Berbenni",
-            dpcasady:"Danny Casady",
-            SAgrawal14:"Shashank Agrawal",
-            visheshd:"Vishesh",
-            'micke-a':"Mikael Andersson",
-            pgdoval:"Pablo González Doval",
-            Uniqen:"Magnus Dalin",
-            demon101:"Demon"
+            kefirfromperm: "Vitalii Samolovskikh",
+            stokito      : "Sergey Ponomarev",
+            ilopmar      : "Iván López",
+            burtbeckwith : "Burt Beckwith",
+            puneetbehl   : "Puneet Behl",
+            aberbenni    : "Alessandro Berbenni",
+            dpcasady     : "Danny Casady",
+            SAgrawal14   : "Shashank Agrawal",
+            visheshd     : "Vishesh",
+            'micke-a'    : "Mikael Andersson",
+            pgdoval      : "Pablo González Doval",
+            Uniqen       : "Magnus Dalin",
+            demon101     : "Demon",
+            vsachinv     : "Sachin Verma"
     ]
+}
+
+
+javadoc {
+    source = sourceSets.main.allJava
+    classpath = configurations.compileClasspath
+    options
+            {
+                setMemberLevel JavadocMemberLevel.PUBLIC
+                setAuthor true
+
+                links "https://docs.oracle.com/javase/8/docs/api/"
+            }
+}
+
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/gpc/grails-asynchronous-mail"
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from components.java
+            artifact sourceJar
+            artifact packageJavadoc
+            artifact packageGroovydoc
+        }
+    }
 }
