@@ -13,6 +13,7 @@ import org.quartz.TriggerKey
 class AsynchronousMailGrailsPlugin extends Plugin {
 
     def grailsVersion = "6.0.0 > *"
+    def dependsOn = [mail: "* > 4.0.0"]
     def loadAfter = ['mail', 'quartz', 'hibernate', 'hibernate3', 'hibernate4', 'hibernate5', 'mongodb']
 
     @Override
@@ -20,6 +21,7 @@ class AsynchronousMailGrailsPlugin extends Plugin {
         { ->
             //noinspection GrUnresolvedAccess
             asynchronousMailMessageBuilderFactory(AsynchronousMailMessageBuilderFactory) { it.autowire = true }
+            asynchronousMailService(AsynchronousMailService) { it.autowire = true }
             //noinspection GrUnresolvedAccess
             springConfig.addAlias 'asyncMailService', 'asynchronousMailService'
         }

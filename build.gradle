@@ -35,7 +35,7 @@ dependencies {
     implementation 'org.grails.plugins:hibernate5'
     implementation 'org.hibernate:hibernate-core:5.6.15.Final'
     implementation 'org.grails.plugins:gsp'
-    implementation 'org.grails.plugins:mail:3.0.0'
+    implementation 'org.grails.plugins:mail:4.0.0'
     // This is needed for the quartz-plugin on grails >= 4.0.x, https://github.com/grails-plugins/grails-quartz/issues/107#issuecomment-575951471
     implementation('org.quartz-scheduler:quartz:2.3.2') { exclude group: 'slf4j-api', module: 'c3p0' }
     implementation 'org.grails.plugins:quartz:2.0.13'
