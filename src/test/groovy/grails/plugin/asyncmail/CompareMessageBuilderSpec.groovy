@@ -15,7 +15,7 @@ class CompareMessageBuilderSpec extends Specification {
 
         // Remove these methods as they are not part of MailMessageBuilder api and has found to be missing from
         // AsynchronousMailMessageBuilder with some versions of groovy which will make the test fail
-        mbMethods.removeAll { ['getProperty', 'setProperty', 'invokeMethod'].contains(it.name) }
+        mbMethods.removeAll { ['getProperty', 'setProperty', 'invokeMethod', 'access$0', 'pfaccess$0', 'pfaccess$1'].contains(it.name) }
 
         expect:
         mbMethods.every { MetaMethod mbm ->
