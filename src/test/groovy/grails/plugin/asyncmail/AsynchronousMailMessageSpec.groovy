@@ -2,6 +2,7 @@ package grails.plugin.asyncmail
 
 import grails.testing.gorm.DomainUnitTest
 import spock.lang.Ignore
+import spock.lang.PendingFeature
 import spock.lang.Specification
 
 import static grails.plugin.asyncmail.enums.MessageStatus.*
@@ -265,7 +266,6 @@ class AsynchronousMailMessageSpec extends Specification implements DomainUnitTes
         ).validate()
     }
 
-    @Ignore
     void "testing message.toString()"() {
         setup:
         AsynchronousMailMessage message = new AsynchronousMailMessage(
@@ -275,6 +275,6 @@ class AsynchronousMailMessageSpec extends Specification implements DomainUnitTes
         message.id = 1
 
         expect:
-        message.toString() == 'grails.plugin.asyncmail.AsynchronousMailMessage(id:1, to:[Mary Smith <mary@example.com>, carl@example.com], subject:Subject, status:CREATED)'
+        message.toString() == 'grails.plugin.asyncmail.AsynchronousMailMessage(id:1, subject:Subject, to:[Mary Smith <mary@example.com>, carl@example.com], status:CREATED)'
     }
 }

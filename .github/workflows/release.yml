@@ -1,68 +1,43 @@
-name: Release
+name: "Release"
 on:
   release:
     types: [ published ]
+env:
+  GIT_USER_NAME: ${{ secrets.GIT_USER_NAME }}
+  GIT_USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
 jobs:
   release:
-    runs-on: ubuntu-latest
-    env:
-      GIT_USER_NAME: ${{ secrets.GIT_USER_NAME }}
-      GIT_USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
+    name: "Release"
+    runs-on: ubuntu-24.04
     steps:
-      -   name: Checkout repository
-          uses: actions/checkout@v2
-          with:
-            ref: 4.0.x
-            token: ${{ secrets.GH_TOKEN }}
-      -   uses: gradle/wrapper-validation-action@v1
-      -   name: Set up JDK
-          uses: actions/setup-java@v1
-          with:
-            java-version: 8
-      -   name: Get latest release version number
-          id: get_version
-          uses: battila7/get-version-action@v2
-      -   name: Run pre-release
-          uses: micronaut-projects/github-actions/pre-release@master
-          with:
-            token: ${{ secrets.GITHUB_TOKEN }}
-      -   name: Publish to Sonatype OSSRH
-          env:
-            SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-            SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-            SONATYPE_STAGING_PROFILE_ID: ${{ secrets.SONATYPE_STAGING_PROFILE_ID }}
-            SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
-            SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
-            SECRING_FILE: ${{ secrets.SECRING_FILE }}
-            RELEASE_VERSION: ${{ steps.get_version.outputs.version-without-v }}
-          run: |
-            echo "${SECRING_FILE}" | base64 -d > "${GITHUB_WORKSPACE}/secring.gpg"
-            echo "Publishing Artifacts for $RELEASE_VERSION"
-            (set -x; ./gradlew -Pversion="${RELEASE_VERSION}" -Psigning.secretKeyRingFile="${GITHUB_WORKSPACE}/secring.gpg" publishToSonatype closeAndReleaseSonatypeStagingRepository --no-daemon)
-      -   name: Bump patch version by one
-          uses: actions-ecosystem/action-bump-semver@v1
-          id: bump_semver
-          with:
-            current_version: ${{steps.get_version.outputs.version-without-v }}
-            level: patch
-      -   name: Set version in gradle.properties
-          env:
-            NEXT_VERSION: ${{ steps.bump_semver.outputs.new_version }}
-          run: |
-            echo "Preparing next snapshot"
-            ./gradlew snapshotVersion -Pversion="${NEXT_VERSION}"
-      -   name: Commit & Push changes
-          uses: actions-js/push@master
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            author_name: ${{ secrets.GIT_USER_NAME }}
-            author_email: $${ secrets.GIT_USER_EMAIL }}
-            branch: 4.0.x
-            message: 'Set version to next SNAPSHOT'
-      -   name: Export Gradle Properties
-          uses: micronaut-projects/github-actions/export-gradle-properties@master
-      -   name: Run post-release
-          if: success()
-          uses: micronaut-projects/github-actions/post-release@master
-          with:
-            token: ${{ secrets.GITHUB_TOKEN }}
+      - name: "📥 Checkout repository"
+        uses: actions/checkout@v4
+      - name: "☕️ Setup JDK"
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
+          distribution: liberica
+      - name: "🐘 Setup Gradle"
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
+      - name: "⚙ Run pre-release"
+        uses: grails/github-actions/pre-release@main
+      - name: "📤 Publish artifacts to Sonatype"
+        id: publish_to_sonatype
+        env:
+          SECRING_FILE: ${{ secrets.SECRING_FILE }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY_ID }}
+          SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_STAGING_PROFILE_ID: ${{ secrets.SONATYPE_STAGING_PROFILE_ID }}
+        run: |
+          echo $SECRING_FILE | base64 -d > ${{ github.workspace }}/secring.gpg
+          ./gradlew --no-build-cache \
+          -Psigning.secretKeyRingFile=${{ github.workspace }}/secring.gpg \
+          publishToSonatype \
+          closeAndReleaseSonatypeStagingRepository
+      - name: "⚙️ Run post-release"
+        if: steps.publish_to_sonatype.outcome == 'success'
+        uses: grails/github-actions/post-release@main
