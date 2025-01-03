@@ -1,0 +1,123 @@
+import io.github.gradlenexus.publishplugin.InitializeNexusStagingRepository
+
+ext.set('signing.keyId', findProperty('signing.keyId') ?: System.getenv('SIGNING_KEY'))
+ext.set('signing.password', findProperty('signing.password') ?: System.getenv('SIGNING_PASSPHRASE'))
+ext.set('signing.secretKeyRingFile', findProperty('signing.secretKeyRingFile'))
+ext.set('isReleaseVersion', !version.toString().endsWith('SNAPSHOT'))
+
+def javaComponent = components.named('java')
+publishing {
+    publications {
+        register('maven', MavenPublication) {
+            from javaComponent.get()
+            pom {
+                name = 'Grails Asynchronous Mail Plugin'
+                description = 'The plugin realises asynchronous mail sending. It stores messages in a DB and sends them asynchronously by a quartz job.'
+                url = 'https://github.com/gpc/grails-asynchronous-mail'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'kefirfromperm'
+                        name = 'Vitalii Samolovskikh'
+                    }
+                    developer {
+                        id = 'stokito'
+                        name = 'Sergey Ponomarev'
+                    }
+                    developer {
+                        id = 'ilopmar'
+                        name = 'Iván López'
+                    }
+                    developer {
+                        id = 'burtbeckwith'
+                        name = 'Burt Beckwith'
+                    }
+                    developer {
+                        id = 'puneetbehl'
+                        name = 'Puneet Behl'
+                    }
+                    developer {
+                        id = 'aberbenni'
+                        name = 'Alessandro Berbenni'
+                    }
+                    developer {
+                        id = 'dpcasady'
+                        name = 'Danny Casady'
+                    }
+                    developer {
+                        id = 'SAgrawal14'
+                        name = 'Shashank Agrawal'
+                    }
+                    developer {
+                        id = 'visheshd'
+                        name = 'Vishesh'
+                    }
+                    developer {
+                        id = 'micke-a'
+                        name = 'Mikael Andersson'
+                    }
+                    developer {
+                        id = 'pgdoval'
+                        name = 'Pablo González Doval'
+                    }
+                    developer {
+                        id = 'Uniqen'
+                        name = 'Magnus Dalin'
+                    }
+                    developer {
+                        id = 'demon101'
+                        name = 'Demon'
+                    }
+                    developer {
+                        id = 'matrei'
+                        name = 'Mattias Reichel'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/gpc/grails-asynchronous-mail.git'
+                    developerConnection = 'scm:git:ssh://github.com:gpc/grails-asynchronous-mail.git'
+                    url = 'https://github.com/gpc/grails-asynchronous-mail'
+                }
+            }
+            // dependency management shouldn't be included
+            pom.withXml {
+                def root = it.asElement()
+                root.getElementsByTagName('dependencyManagement').each { root.removeChild(it) }
+            }
+        }
+    }
+}
+
+def mavenPublication = publishing.publications.named('maven')
+afterEvaluate {
+    signing {
+        required = { isReleaseVersion }
+        sign(mavenPublication.get())
+    }
+}
+
+tasks.withType(Sign) {
+    onlyIf { isReleaseVersion }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl = uri('https://s01.oss.sonatype.org/service/local')
+            snapshotRepositoryUrl = uri('https://s01.oss.sonatype.org/content/repositories/snapshots')
+            username = System.getenv('SONATYPE_USERNAME')
+            password = System.getenv('SONATYPE_PASSWORD')
+            stagingProfileId = System.getenv('SONATYPE_STAGING_PROFILE_ID')
+        }
+    }
+}
+
+//do not generate extra load on Nexus with new staging repository if signing fails
+tasks.withType(InitializeNexusStagingRepository).configureEach {
+    shouldRunAfter = tasks.withType(Sign)
+}
