@@ -1,5 +1,3 @@
-import io.github.gradlenexus.publishplugin.InitializeNexusStagingRepository
-
 ext.set('signing.keyId', findProperty('signing.keyId') ?: System.getenv('SIGNING_KEY'))
 ext.set('signing.password', findProperty('signing.password') ?: System.getenv('SIGNING_PASSPHRASE'))
 ext.set('signing.secretKeyRingFile', findProperty('signing.secretKeyRingFile'))
@@ -118,6 +116,6 @@ nexusPublishing {
 }
 
 //do not generate extra load on Nexus with new staging repository if signing fails
-tasks.withType(InitializeNexusStagingRepository).configureEach {
+tasks.named('initializeSonatypeStagingRepository') {
     shouldRunAfter = tasks.withType(Sign)
 }
