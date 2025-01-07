@@ -1,234 +1,63 @@
 buildscript {
     repositories {
-        maven { url "https://repo.grails.org/grails/core" }
-        maven { url "https://plugins.gradle.org/m2" }
+        maven { url = 'https://repo.grails.org/grails/core' }
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.4"
-        classpath "org.grails.plugins:hibernate5:7.2.0"
-        classpath "io.github.gradle-nexus:publish-plugin:1.0.0"
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:$assetPipelineVersion"
+        classpath "io.github.gradle-nexus:publish-plugin:$nexusPublishVersion"
     }
 }
 
-group "io.github.gpc"
+version = projectVersion
+group = 'io.github.gpc'
 
-apply plugin: "eclipse"
-apply plugin: "idea"
-apply plugin: "org.grails.grails-plugin"
-apply plugin: "asset-pipeline"
-apply plugin: "org.grails.grails-gsp"
-apply plugin: "maven-publish"
-apply plugin: "signing"
-apply plugin: "io.github.gradle-nexus.publish-plugin"
+apply plugin: 'asset-pipeline'
+apply plugin: 'groovy'
+apply plugin: 'idea'
+apply plugin: 'io.github.gradle-nexus.publish-plugin'
+apply plugin: 'maven-publish'
+apply plugin: 'org.grails.grails-plugin'
+apply plugin: 'signing'
 
 repositories {
-    maven { url "https://repo.grails.org/grails/core" }
-}
-
-configurations {
-    developmentOnly
-    runtimeClasspath {
-        extendsFrom developmentOnly
-    }
+    maven { url = 'https://repo.grails.org/grails/core' }
 }
 
 dependencies {
 
-    compileOnly "io.micronaut:micronaut-inject-groovy"
+    compileOnly 'io.micronaut:micronaut-inject-groovy'
 
-    implementation "org.grails:grails-logging"
-    implementation "org.grails:grails-plugin-rest"
-    implementation "org.grails:grails-plugin-databinding"
-    implementation "org.grails:grails-plugin-i18n"
-    implementation "org.grails:grails-plugin-services"
-    implementation "org.grails.plugins:async"
-    implementation "org.grails.plugins:scaffolding"
-    implementation "org.grails.plugins:hibernate5"
-    implementation "org.hibernate:hibernate-core:5.6.15.Final"
-    implementation "org.grails.plugins:gsp"
-    implementation "org.grails.plugins:mail:3.0.0"
-    // This is needed for the quartz-plugin on grails >= 4.0.x, https://github.com/grails-plugins/grails-quartz/issues/107#issuecomment-575951471
-    implementation("org.quartz-scheduler:quartz:2.3.2") {
-        exclude group: 'slf4j-api', module: 'c3p0'
-    }
-    implementation "org.grails.plugins:quartz:2.0.13"
+    implementation 'org.grails:grails-core'
+    implementation 'org.grails:grails-logging'
+    implementation 'org.grails:grails-plugin-databinding'
+    implementation 'org.grails:grails-plugin-i18n'
+    implementation 'org.grails:grails-plugin-interceptors'
+    implementation 'org.grails:grails-plugin-rest'
+    implementation 'org.grails:grails-plugin-services'
+    implementation 'org.grails:grails-plugin-url-mappings'
+    implementation 'org.grails:grails-web-boot'
+    implementation 'org.grails.plugins:async'
+    implementation 'org.grails.plugins:cache'
+    implementation 'org.grails.plugins:gsp'
+    implementation 'org.grails.plugins:hibernate5'
+    implementation "org.grails.plugins:mail:$grailsMailVersion"
+    implementation 'org.grails.plugins:scaffolding'
+    // This is needed for the quartz-plugin in Grails 4.0.x, https://github.com/grails-plugins/grails-quartz/issues/107#issuecomment-575951471
+    implementation("org.quartz-scheduler:quartz:$quartzCoreVersion") { exclude(group: 'slf4j-api', module: 'c3p0') }
+    implementation "org.grails.plugins:quartz:$grailsQuartzVersion"
 
-    profile "org.grails.profiles:web-plugin"
+    testCompileOnly 'io.micronaut:micronaut-inject-groovy'
 
-    runtimeOnly "com.h2database:h2"
-    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
+    testRuntimeOnly 'com.h2database:h2'
+    testRuntimeOnly 'org.apache.tomcat:tomcat-jdbc'
 
-    testImplementation "org.springframework.boot:spring-boot-starter-tomcat"
-    testImplementation "ch.qos.logback:logback-classic:1.2.12"
-    testImplementation "ch.qos.logback:logback-core:1.2.12"
-    testImplementation "io.micronaut:micronaut-inject-groovy"
-    testImplementation "org.grails:grails-gorm-testing-support"
-    testImplementation "org.grails:grails-web-testing-support"
+    testImplementation 'org.grails:grails-gorm-testing-support'
+    testImplementation "org.spockframework:spock-core:$spockVersion"
+    testImplementation 'org.springframework.boot:spring-boot-starter-tomcat'
 }
 
-bootRun {
-    ignoreExitValue true
-    jvmArgs(
-            '-Dspring.output.ansi.enabled=always',
-            '-noverify',
-            '-XX:TieredStopAtLevel=1',
-            '-Xmx1024m')
-    sourceResources sourceSets.main
-    String springProfilesActive = 'spring.profiles.active'
-    systemProperty springProfilesActive, System.getProperty(springProfilesActive)
-}
-
-
-tasks.withType(GroovyCompile).configureEach {
-    configure(groovyOptions) {
-        forkOptions.jvmArgs = ['-Xmx1024m']
-    }
-}
-
-tasks.withType(Test).configureEach {
-    useJUnitPlatform()
-}
-
-// enable if you wish to package this plugin as a standalone application
-bootJar.enabled = false
-jar {
-    enabled = true
-    archiveClassifier = ''
-}
-
-assets {
-    packagePlugin = true
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = project.group
-            artifactId = 'asynchronous-mail'
-            version = project.version
-
-            from components.java
-            artifact sourcesJar
-            artifact javadocJar
-
-            pom {
-                name = 'Grails Asynchronous Mail Plugin'
-                description = 'The plugin realises asynchronous mail sending. It stores messages in a DB and sends them asynchronously by a quartz job.'
-                url = 'https://github.com/gpc/grails-asynchronous-mail'
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'kefirfromperm'
-                        name = 'Vitalii Samolovskikh'
-                    }
-                    developer {
-                        id = 'stokito'
-                        name = 'Sergey Ponomarev'
-                    }
-                    developer {
-                        id = 'ilopmar'
-                        name = 'Iván López'
-                    }
-                    developer {
-                        id = 'burtbeckwith'
-                        name = 'Burt Beckwith'
-                    }
-                    developer {
-                        id = 'puneetbehl'
-                        name = 'Puneet Behl'
-                    }
-                    developer {
-                        id = 'aberbenni'
-                        name = 'Alessandro Berbenni'
-                    }
-                    developer {
-                        id = 'dpcasady'
-                        name = 'Danny Casady'
-                    }
-                    developer {
-                        id = 'SAgrawal14'
-                        name = 'Shashank Agrawal'
-                    }
-                    developer {
-                        id = 'visheshd'
-                        name = 'Vishesh'
-                    }
-                    developer {
-                        id = 'micke-a'
-                        name = 'Mikael Andersson'
-                    }
-                    developer {
-                        id = 'pgdoval'
-                        name = 'Pablo González Doval'
-                    }
-                    developer {
-                        id = 'Uniqen'
-                        name = 'Magnus Dalin'
-                    }
-                    developer {
-                        id = 'demon101'
-                        name = 'Demon'
-                    }
-                    developer {
-                        id = 'matrei'
-                        name = 'Mattias Reichel'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://github.com/gpc/grails-asynchronous-mail.git'
-                    developerConnection = 'scm:git:ssh://github.com:gpc/grails-asynchronous-mail.git'
-                    url = 'https://github.com/gpc/grails-asynchronous-mail'
-                }
-            }
-        }
-    }
-}
-
-ext."signing.keyId" = project.findProperty('signing.keyId') ?: System.getenv('SIGNING_KEY_ID')
-ext."signing.password" = project.findProperty('signing.password') ?: System.getenv('SIGNING_PASSPHRASE')
-ext."signing.secretKeyRingFile" = project.findProperty('signing.secretKeyRingFile') ?: (System.getenv('SIGNING_PASSPHRASE') ?: "${System.getProperty('user.home')}/.gnupg/secring.gpg")
-
-ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
-
-afterEvaluate {
-    signing {
-        required { isReleaseVersion }
-        sign publishing.publications.maven
-    }
-}
-
-tasks.withType(Sign).configureEach {
-    onlyIf { isReleaseVersion }
-}
-
-nexusPublishing {
-    repositories {
-        sonatype {
-            def ossUser = System.getenv("SONATYPE_USERNAME") ?: project.findProperty('sonatypeOss2Username') ?: ''
-            def ossPass = System.getenv("SONATYPE_PASSWORD") ?: project.findProperty("sonatypeOss2Password") ?: ''
-            def ossStagingProfileId = System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: project.findProperty("sonatypeOssStagingProfileIdJms") ?: ''
-
-            nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
-            snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            username = ossUser
-            password = ossPass
-            stagingProfileId = ossStagingProfileId
-        }
-    }
-}
-
-tasks.register('snapshotVersion') {
-    doLast {
-        if (!project.version.endsWith('-SNAPSHOT')) {
-            ant.propertyfile(file: "gradle.properties") {
-                entry(key: "version", value: "${project.version}-SNAPSHOT")
-            }
-        }
-    }
-}
+apply from: layout.projectDirectory.file('gradle/java-config.gradle')
+apply from: layout.projectDirectory.file('gradle/plugin-config.gradle')
+apply from: layout.projectDirectory.file('gradle/test-config.gradle')
+apply from: layout.projectDirectory.file('gradle/publish-config.gradle')

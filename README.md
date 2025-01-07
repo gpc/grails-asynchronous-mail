@@ -11,7 +11,7 @@ database with Grails domain classes and sends them by a scheduled Quartz job. Ma
 the `sendAsynchronousMail` (or `sendMail`) method returning instantly, is not waiting for the mail to be actually sent. If
 the SMTP server isn't available, or other errors occur, the plugin can be set to retry later.
 
-The plugin depends on the [quartz](https://plugins.grails.org/plugin/grails/quartz) and the [mail](https://plugins.grails.org/plugin/grails/mail) plugins. You also need a persistence provider plugin, [hibernate5](https://plugins.grails.org/plugin/grails/hibernate5) (or the appropriate version of hibernate for previous grails versions) and [mongodb](https://plugins.grails.org/plugin/grails/mongodb) are supported.
+The plugin depends on the [quartz](https://github.com/grails/grails-quartz) and the [mail](https://github.com/gpc/grails-mail) plugins. You also need a persistence provider plugin, [hibernate5](https://github.com/grails/gorm-hibernate5) (or the appropriate version of hibernate for previous grails versions) and [mongodb](https://github.com/grails/gorm-mongodb) are supported.
 
 Links
 -----
@@ -166,6 +166,8 @@ Issue tracking
 You can report bugs on [GitHub](https://github.com/gpc/grails-asynchronous-mail/issues?state=open).
 You also can ask questions in the [Grails Community Slack Channels](https://slack.grails.org/).
 Please enable logs and attach them to your issue.
+
+Please review this project at [OpenHUB](https://www.openhub.net/p/grails-asynchronous-mail).
 
 Contribution
 ------------
