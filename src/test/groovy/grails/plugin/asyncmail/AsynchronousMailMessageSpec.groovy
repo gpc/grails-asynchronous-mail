@@ -2,6 +2,7 @@ package grails.plugin.asyncmail
 
 import grails.testing.gorm.DomainUnitTest
 import spock.lang.Ignore
+import spock.lang.PendingFeature
 import spock.lang.Specification
 
 import static grails.plugin.asyncmail.enums.MessageStatus.*
