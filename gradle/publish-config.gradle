@@ -84,11 +84,6 @@ publishing {
                     url = 'https://github.com/gpc/grails-asynchronous-mail'
                 }
             }
-            // dependency management shouldn't be included
-            pom.withXml {
-                def root = it.asElement()
-                root.getElementsByTagName('dependencyManagement').each { root.removeChild(it) }
-            }
         }
     }
     if (!isReleaseVersion) {
