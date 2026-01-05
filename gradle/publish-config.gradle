@@ -1,3 +1,5 @@
+import io.github.gradlenexus.publishplugin.InitializeNexusStagingRepository
+
 ext.set('signing.keyId', findProperty('signing.keyId') ?: System.getenv('SIGNING_KEY'))
 ext.set('signing.password', findProperty('signing.password') ?: System.getenv('SIGNING_PASSPHRASE'))
 ext.set('signing.secretKeyRingFile', findProperty('signing.secretKeyRingFile'))
@@ -89,6 +91,17 @@ publishing {
             }
         }
     }
+    if (!isReleaseVersion) {
+        repositories {
+            maven {
+                credentials {
+                    username = System.getenv('MAVEN_PUBLISH_USERNAME')
+                    password = System.getenv('MAVEN_PUBLISH_PASSWORD')
+                }
+                url = uri(System.getenv('MAVEN_PUBLISH_SNAPSHOT_URL') ?: 'https://repo.grails.org/artifactory/plugins3-snapshots-local')
+            }
+        }
+    }
 }
 
 def mavenPublication = publishing.publications.named('maven')
@@ -103,19 +116,20 @@ tasks.withType(Sign).configureEach {
     onlyIf { isReleaseVersion }
 }
 
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl = uri('https://ossrh-staging-api.central.sonatype.com/service/local/')
-            snapshotRepositoryUrl = uri('https://central.sonatype.com/repository/maven-snapshots/')
-            username = System.getenv('SONATYPE_USERNAME')
-            password = System.getenv('SONATYPE_PASSWORD')
-            stagingProfileId = System.getenv('SONATYPE_STAGING_PROFILE_ID')
+if (isReleaseVersion) {
+    nexusPublishing {
+        repositories {
+            sonatype {
+                nexusUrl = uri('https://ossrh-staging-api.central.sonatype.com/service/local/')
+                snapshotRepositoryUrl = uri('https://central.sonatype.com/repository/maven-snapshots/')
+                username = System.getenv('SONATYPE_USERNAME')
+                password = System.getenv('SONATYPE_PASSWORD')
+            }
         }
     }
 }
 
 //do not generate extra load on Nexus with new staging repository if signing fails
-tasks.named('initializeSonatypeStagingRepository') {
+tasks.withType(InitializeNexusStagingRepository).configureEach {
     shouldRunAfter = tasks.withType(Sign)
 }
