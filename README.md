@@ -1,7 +1,7 @@
 The Grails Asynchronous Mail plugin
 ====================================
 
-[![Build](https://github.com/gpc/grails-asynchronous-mail/actions/workflows/build.yml/badge.svg)](https://github.com/gpc/grails-asynchronous-mail/actions/workflows/build.yml)
+[![Build](https://github.com/gpc/grails-asynchronous-mail/actions/workflows/build.yml/badge.svg?event=push)](https://github.com/gpc/grails-asynchronous-mail/actions/workflows/build.yml)
 
 Description
 -----------
@@ -27,28 +27,28 @@ To install just add the plugin to the plugins block of `build.gradle`:
 
 For Grails 6.x.x
 ```groovy
-implementation "io.github.gpc:asynchronous-mail:4.0.0-SNAPSHOT"
+implementation 'io.github.gpc:asynchronous-mail:4.0.0'
 ```
 
 
 For Grails 5.x.x
 ```groovy
-implementation "io.github.gpc:asynchronous-mail:3.1.2"
+implementation 'io.github.gpc:asynchronous-mail:3.1.2'
 ```
 
 For grails 4.0.x
 ```groovy
-compile "io.github.gpc:asynchronous-mail:3.0.0"
+compile 'io.github.gpc:asynchronous-mail:3.0.0'
 ```
 
 For Grails 3.3.x
 ```groovy
-compile "org.grails.plugins:asynchronous-mail:2.0.2"
+compile 'org.grails.plugins:asynchronous-mail:2.0.2'
 ```
 
 For Grails 3.2.11 and earlier
 ```groovy
-compile "org.grails.plugins:asynchronous-mail:2.0.2-3.2.x"
+compile 'org.grails.plugins:asynchronous-mail:2.0.2-3.2.x'
 ```
 
 Configuration
