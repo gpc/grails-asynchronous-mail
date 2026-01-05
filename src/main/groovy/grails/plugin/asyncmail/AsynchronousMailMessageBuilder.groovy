@@ -55,15 +55,20 @@ class AsynchronousMailMessageBuilder {
     private static List<Boolean> getAsynchronousMailDeletingOptionsFromValue(value) {
         switch(value){
             case 'attachments':
-                return [false,true]
+                return [false, true]
             case true:
-                return [true,false]
+                return [true, false]
+            case 'true':
+                return [true, false]
             case false:
-                return [false,false]
+                return [false, false]
+            case 'false':
+                return [false, false]
             default:
-                return [false,false]
+                return [false, false]
         }
     }
+
     // Specified fields for asynchronous message
     @SuppressWarnings('unused')
     void beginDate(Date begin) {
