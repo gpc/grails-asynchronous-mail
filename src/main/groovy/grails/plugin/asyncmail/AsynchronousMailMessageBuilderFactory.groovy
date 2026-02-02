@@ -5,8 +5,8 @@ import grails.core.support.GrailsConfigurationAware
 import grails.plugins.mail.MailMessageContentRenderer
 import org.springframework.mail.javamail.JavaMailSender
 
-import javax.activation.FileTypeMap
-import javax.activation.MimetypesFileTypeMap
+import jakarta.activation.FileTypeMap
+import jakarta.activation.MimetypesFileTypeMap
 /**
  * Create a message builder.
  *
