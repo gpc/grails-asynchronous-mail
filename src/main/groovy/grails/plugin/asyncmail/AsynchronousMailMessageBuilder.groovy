@@ -10,7 +10,7 @@ import org.springframework.mail.MailMessage
 import org.springframework.mail.MailSender
 import org.springframework.util.Assert
 
-import javax.activation.FileTypeMap
+import jakarta.activation.FileTypeMap
 import java.util.concurrent.ExecutorService
 
 /**

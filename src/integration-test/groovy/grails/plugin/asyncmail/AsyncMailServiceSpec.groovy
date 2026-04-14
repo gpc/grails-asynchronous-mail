@@ -4,7 +4,7 @@ import grails.testing.mixin.integration.Integration
 import grails.gorm.transactions.Rollback
 import spock.lang.Specification
 
-import javax.annotation.Resource
+import jakarta.annotation.Resource
 
 import static grails.plugin.asyncmail.enums.MessageStatus.CREATED
 

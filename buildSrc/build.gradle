@@ -5,11 +5,11 @@ file('../gradle.properties').withInputStream {
 
 repositories {
     mavenCentral()
-    maven { url = 'https://repo.grails.org/grails/core' }
+    maven { url = 'https://repo.grails.org/grails/restricted' }
 }
 
 dependencies {
-    implementation "org.grails:grails-gradle-plugin:${versions['grailsGradlePluginVersion']}"
-    implementation "io.github.gradle-nexus:publish-plugin:${versions['nexusPublishVersion']}"
-    implementation "com.bertramlabs.plugins:asset-pipeline-gradle:${versions['assetPipelineVersion']}"
+    implementation platform("org.apache.grails:grails-bom:${versions['grailsVersion']}")
+    implementation "org.apache.grails:grails-gradle-plugins"
+    implementation "cloud.wondrify:asset-pipeline-grails"
 }

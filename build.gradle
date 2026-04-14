@@ -1,59 +1,54 @@
 buildscript {
     repositories {
-        maven { url = 'https://repo.grails.org/grails/core' }
+        maven { url = 'https://repo.grails.org/grails/restricted' }
     }
     dependencies {
-        classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:$assetPipelineVersion"
-        classpath "io.github.gradle-nexus:publish-plugin:$nexusPublishVersion"
+        classpath platform("org.apache.grails:grails-bom:$grailsVersion")
+        classpath 'org.apache.grails:grails-gradle-plugins'
+        classpath 'cloud.wondrify:asset-pipeline-gradle'
     }
 }
 
 version = projectVersion
 group = 'io.github.gpc'
 
-apply plugin: 'asset-pipeline'
+apply plugin: 'cloud.wondrify.asset-pipeline'
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'io.github.gradle-nexus.publish-plugin'
 apply plugin: 'maven-publish'
-apply plugin: 'org.grails.grails-plugin'
+apply plugin: 'org.apache.grails.gradle.grails-plugin'
 apply plugin: 'signing'
 
 repositories {
-    maven { url = 'https://repo.grails.org/grails/core' }
+    maven { url = 'https://repo.grails.org/grails/restricted' }
 }
 
 dependencies {
 
-    compileOnly 'io.micronaut:micronaut-inject-groovy'
+    implementation platform("org.apache.grails:grails-bom:$grailsVersion")
 
-    implementation 'org.grails:grails-core'
-    implementation 'org.grails:grails-logging'
-    implementation 'org.grails:grails-plugin-databinding'
-    implementation 'org.grails:grails-plugin-i18n'
-    implementation 'org.grails:grails-plugin-interceptors'
-    implementation 'org.grails:grails-plugin-rest'
-    implementation 'org.grails:grails-plugin-services'
-    implementation 'org.grails:grails-plugin-url-mappings'
-    implementation 'org.grails:grails-web-boot'
-    implementation 'org.grails.plugins:async'
-    implementation 'org.grails.plugins:cache'
-    implementation 'org.grails.plugins:gsp'
-    implementation 'org.grails.plugins:hibernate5'
-    implementation "org.grails.plugins:mail:$grailsMailVersion"
-    implementation 'org.grails.plugins:scaffolding'
-    // This is needed for the quartz-plugin in Grails 4.0.x, https://github.com/grails-plugins/grails-quartz/issues/107#issuecomment-575951471
-    implementation("org.quartz-scheduler:quartz:$quartzCoreVersion") { exclude(group: 'slf4j-api', module: 'c3p0') }
-    implementation "org.grails.plugins:quartz:$grailsQuartzVersion"
-
-    testCompileOnly 'io.micronaut:micronaut-inject-groovy'
+    implementation 'org.apache.grails:grails-core'
+    implementation 'org.apache.grails:grails-logging'
+    implementation 'org.apache.grails:grails-databinding'
+    implementation 'org.apache.grails:grails-interceptors'
+    implementation 'org.apache.grails:grails-rest-transforms'
+    implementation 'org.apache.grails:grails-services'
+    implementation 'org.apache.grails:grails-url-mappings'
+    implementation 'org.apache.grails:grails-web-boot'
+    implementation 'org.apache.grails:grails-async'
+    implementation 'org.apache.grails:grails-cache'
+    implementation 'org.apache.grails:grails-gsp'
+    implementation 'org.apache.grails:grails-data-hibernate5'
+    implementation 'org.apache.grails:grails-scaffolding'
+    implementation "org.grails.plugins:grails-mail:${grailsMailVersion}"
+    implementation "org.apache.grails:grails-quartz:${grailsQuartzVersion}"
 
     testRuntimeOnly 'com.h2database:h2'
     testRuntimeOnly 'org.apache.tomcat:tomcat-jdbc'
 
-    testImplementation 'org.grails:grails-gorm-testing-support'
-    testImplementation "org.spockframework:spock-core:$spockVersion"
+    testImplementation 'org.apache.grails:grails-testing-support-datamapping'
+    testImplementation 'org.spockframework:spock-core'
     testImplementation 'org.springframework.boot:spring-boot-starter-tomcat'
 }
 

@@ -2,8 +2,8 @@ package grails.plugin.asyncmail;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 
 /**
  * Validator for mailbox
@@ -11,6 +11,12 @@ import javax.mail.internet.InternetAddress;
  * @author Vitalii Samolovskikh aka Kefir
  */
 public class Validator {
+    /**
+     * Checks if string is valid email address.
+     *
+     * @param value email address to validate
+     * @return <code>true</code> is email address is valid, <code>false</code> otherwise.
+     */
     public static boolean isMailbox(String value) {
         boolean result = true;
         try {

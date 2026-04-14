@@ -3,7 +3,6 @@ package grails.plugin.asyncmail
 
 import grails.plugin.asyncmail.enums.MessageStatus
 import groovy.transform.ToString
-import org.apache.commons.lang.StringUtils
 
 import static grails.plugin.asyncmail.enums.MessageStatus.*
 
@@ -220,7 +219,7 @@ class AsynchronousMailMessage implements Serializable {
         headers(nullable: true, validator: { Map<String, String> map ->
             boolean flag = true
             map?.each { String key, String value ->
-                if (StringUtils.isBlank(key) || StringUtils.isBlank(value)) {
+                if (!key || key.isBlank() || !value || value.isBlank()) {
                     flag = false
                 }
             }
